@@ -2,7 +2,14 @@
  * @Author: chenzhongsheng
  * @Date: 2024-11-10 10:48:50
  * @Description: Coding something
+ *
+
+[1,2,3,4,5,6]
+[1,2,3,4,5,6]
+
+
  */
+
 
 const End = Symbol('E');
 
@@ -15,8 +22,6 @@ export class HistoryStack<T = any> {
     index = 0;
 
     End = End as T;
-
-    lastIsForward = false;
 
     private osc?: () => void;
     private ohsc?: () => void;
@@ -56,17 +61,13 @@ export class HistoryStack<T = any> {
 
     private setHistoryIndex (index: number) {
         this.index = index;
-        this.size = index;
+        this.size = index + 1;
         this.ohsc?.();
     }
 
     back (): T {
         if (!this.canBack()) {
             return this.End;
-        }
-        if (this.lastIsForward) {
-            this.index --;
-            this.lastIsForward = false;
         }
         this.setStep(this.step - 1);
         this.setHistoryIndex(this.index - 1);
@@ -83,13 +84,9 @@ export class HistoryStack<T = any> {
         if (!this.canForward()) {
             return this.End;
         }
-        if (!this.lastIsForward) {
-            this.index ++;
-            this.lastIsForward = true;
-        }
         this.setStep(this.step + 1);
-        const item = this.list[this.index];
         this.setHistoryIndex(this.index + 1);
+        const item = this.list[this.index];
         this.oho?.(item);
         return item;
     }
@@ -99,13 +96,15 @@ export class HistoryStack<T = any> {
     }
 
     canForward () {
-        return this.index < this.list.length;
+        return this.index < this.list.length - 1;
     }
 
     push (data: T) {
         const n = this.list.length;
 
         if (this.index < n) {
+            this.step ++;
+            this.index ++;
             // 在历史记录中, 则移除旧记录，开辟新记录
             this.list.splice(this.index);
         }

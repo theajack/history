@@ -23,6 +23,8 @@ export class HistoryStack<T = any> {
 
     End = End as T;
 
+    isActive = false;
+
     private osc?: () => void;
     private ohsc?: () => void;
     private oho?: (data: T) => void;
@@ -60,6 +62,9 @@ export class HistoryStack<T = any> {
     }
 
     private setHistoryIndex (index: number) {
+        if (!this.isActive) {
+            this.isActive = true;
+        }
         this.index = index;
         this.size = index;
         this.ohsc?.();
@@ -148,12 +153,26 @@ export class HistoryStack<T = any> {
         // console.log('receive change', this.list, this.index, data);
         this.list.push(...data);
         this.setStep(this.step + pushCount);
+
+        if (this.isActive) {
+            this.isActive = false;
+        }
     }
 
     clear () {
         this.list = [];
         this.setHistoryIndex(0);
         this.setStep(0);
+        this.isActive = false;
+    }
+
+    replace (v: T, i = this.index) {
+        if (typeof this.list[i] === 'undefined') return;
+        this.list[i] = v;
+    }
+
+    get isLatest () {
+        return this.index === this.list.length - 1;
     }
 
 }

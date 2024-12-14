@@ -16,6 +16,8 @@ export class HistoryStack<T = any> {
 
     End = End as T;
 
+    lastIsForward = false;
+
     private osc?: () => void;
     private ohsc?: () => void;
     private oho?: (data: T) => void;
@@ -62,6 +64,10 @@ export class HistoryStack<T = any> {
         if (!this.canBack()) {
             return this.End;
         }
+        if (this.lastIsForward) {
+            this.index --;
+            this.lastIsForward = false;
+        }
         this.setStep(this.step - 1);
         this.setHistoryIndex(this.index - 1);
         const item = this.list[this.index];
@@ -76,6 +82,10 @@ export class HistoryStack<T = any> {
     forward (): T {
         if (!this.canForward()) {
             return this.End;
+        }
+        if (!this.lastIsForward) {
+            this.index ++;
+            this.lastIsForward = true;
         }
         this.setStep(this.step + 1);
         const item = this.list[this.index];

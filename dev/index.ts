@@ -41,6 +41,28 @@ hh.push(6);
 console.assert(hh.back() === 6);
 console.assert(hh.back() === 2);
 
+hh.push(7, 8);
+console.assert(hh.list.toString() === [1, 2, 7, 8].toString());
+console.assert(hh.back() === 8);
+console.assert(hh.back(2) === 2);
+console.assert(hh.back() === 1);
+console.assert(hh.forward(2) === 7);
+console.assert(hh.first() === 1);
+console.assert(hh.back() === hh.End);
+console.assert(hh.forward(2) === 7);
+console.assert(hh.last() === 8);
+console.assert(hh.forward() === hh.End);
+console.assert(hh.back(2) === 2);
+console.assert(hh.forward(100) === hh.End);
+console.assert(hh.back(2) === 2);
+console.assert(hh.forward() === 7);
+console.assert(hh.forward() === 8);
+console.assert(hh.forward() === hh.End);
+console.assert(hh.back() === 7);
+console.assert(hh.back() === 2);
+console.assert(hh.back(100) === hh.End);
+console.assert(hh.forward(2) === 7);
+
 // console.assert(hh.back() === 4);
 
 // console.log('hh back', hh.back());

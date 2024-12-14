@@ -61,31 +61,52 @@ export class HistoryStack<T = any> {
 
     private setHistoryIndex (index: number) {
         this.index = index;
-        this.size = index + 1;
+        this.size = index;
         this.ohsc?.();
     }
 
-    back (): T {
-        if (!this.canBack()) {
+    back (i = 1): T {
+        if (!this.canBack(i)) {
+            if (i > 1) {
+                this.setStep(this.step - this.index);
+                this.setHistoryIndex(0);
+            }
             return this.End;
         }
-        this.setStep(this.step - 1);
-        this.setHistoryIndex(this.index - 1);
+        this.setStep(this.step - i);
+        this.setHistoryIndex(this.index - i);
         const item = this.list[this.index];
         this.oho?.(item);
         return item;
     }
 
-    canBack () {
-        return this.index > 0;
+    canBack (i = 1) {
+        return this.index - i >= 0;
     }
 
-    forward (): T {
-        if (!this.canForward()) {
+    first () {
+        if (this.list.length === 0) return End;
+        this.setStep(this.step - this.index);
+        this.setHistoryIndex(0);
+        return this.list[0];
+    }
+    last () {
+        if (this.list.length === 0) return End;
+        this.setStep(this.step + this.list.length - this.index);
+        this.setHistoryIndex(this.list.length - 1);
+        return this.list[this.list.length - 1];
+    }
+
+    forward (i = 1): T {
+        if (!this.canForward(i)) {
+            if (i > 1) {
+                this.setStep(this.step + this.list.length - this.index);
+                this.setHistoryIndex(this.list.length - 1);
+            }
             return this.End;
         }
-        this.setStep(this.step + 1);
-        this.setHistoryIndex(this.index + 1);
+        this.setStep(this.step + i);
+        this.setHistoryIndex(this.index + i);
         const item = this.list[this.index];
         this.oho?.(item);
         return item;
@@ -95,11 +116,11 @@ export class HistoryStack<T = any> {
         return v === End;
     }
 
-    canForward () {
-        return this.index < this.list.length - 1;
+    canForward (i = 1) {
+        return this.index + i < this.list.length;
     }
 
-    push (data: T) {
+    push (...data: T[]) {
         const n = this.list.length;
 
         if (this.index < n) {
@@ -109,14 +130,24 @@ export class HistoryStack<T = any> {
             this.list.splice(this.index);
         }
 
-        if (this.max > 0 && this.list.length >= this.max) {
-            this.list.shift();
-        } else {
-            this.setHistoryIndex(this.index + 1);
+        const size = data.length;
+
+        let deleteCount = 0, pushCount = size;
+        if (this.max > 0 && n + size > this.max) {
+            deleteCount = n + size - this.max;
+            pushCount = size - deleteCount;
         }
+
+        if (deleteCount) {
+            this.list.splice(0, deleteCount);
+        }
+        if (pushCount) {
+            this.setHistoryIndex(this.index + pushCount);
+        }
+
         // console.log('receive change', this.list, this.index, data);
-        this.list.push(data);
-        this.setStep(this.step + 1);
+        this.list.push(...data);
+        this.setStep(this.step + pushCount);
     }
 
     clear () {

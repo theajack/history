@@ -72,6 +72,10 @@ const history = new HistoryStack<string>({
 typings
 
 ```ts
+export declare enum HistoryMode {
+	Fork = 0,
+	Append = 1
+}
 export declare class HistoryStack<T = any> {
 	static Mode: typeof HistoryMode;
 	step: number;
@@ -107,6 +111,7 @@ export declare class HistoryStack<T = any> {
 	forward(i?: number): T;
 	isEnd(v: T): boolean;
 	canForward(i?: number): boolean;
+	pop(n?: number): T[];
 	push(...data: T[]): void;
 	clear(): void;
 	replace(v: T, i?: number): void;

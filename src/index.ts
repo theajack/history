@@ -156,6 +156,26 @@ export class HistoryStack<T = any> {
         return this.index + i < this.list.length;
     }
 
+    pop (n = 1): T[] {
+        const len = this.list.length;
+        if (len <= n) {
+            const result = [...this.list];
+            this.clear();
+            return result;
+        }
+        const index = len - n;
+
+        const result = this.list.splice(index);
+
+        const newLen = this.list.length;
+
+        if (newLen < this.index) {
+            this.setHistoryIndex(newLen);
+            this.setStep(this.step - (this.index - newLen));
+        }
+        return result;
+    }
+
     push (...data: T[]) {
         const n = this.list.length;
 
@@ -176,14 +196,11 @@ export class HistoryStack<T = any> {
             pushCount = size - deleteCount;
         }
 
-        if (this.mode === HistoryMode.Fork) {
-            if (deleteCount) {
-                this.list.splice(0, deleteCount);
-            }
-        }
-
         // console.log('receive change', this.list, this.index, data);
         this.list.push(...data);
+        if (deleteCount) {
+            this.list.splice(0, deleteCount);
+        }
         this._onListChange();
 
         if (pushCount) {

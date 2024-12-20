@@ -76,6 +76,10 @@ export declare enum HistoryMode {
 	Fork = 0,
 	Append = 1
 }
+export interface StorageProvider<T = any> {
+	read(): T[] | Promise<T[]>;
+	write(data: T[]): void | Promise<void>;
+}
 export declare class HistoryStack<T = any> {
 	static Mode: typeof HistoryMode;
 	step: number;
@@ -88,14 +92,14 @@ export declare class HistoryStack<T = any> {
 	private osc?;
 	private ohsc?;
 	private oho?;
-	useStorage: boolean;
-	storageKey: string;
 	mode: HistoryMode;
-	constructor({ max, useStorage, storageKey, mode, onStepChange, onHistorySizeChange, onHistoryOut, }?: {
+	storageProvider: StorageProvider<T>;
+	constructor({ max, useStorage, storageKey, mode, storageProvider, onStepChange, onHistorySizeChange, onHistoryOut, }?: {
 		max?: number;
 		useStorage?: boolean;
 		mode?: HistoryMode;
 		storageKey?: string;
+		storageProvider?: StorageProvider<T>;
 		onStepChange?: (step: number) => void;
 		onHistorySizeChange?: (size: number) => void;
 		onHistoryOut?: (data: T) => void;

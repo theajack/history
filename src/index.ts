@@ -18,6 +18,11 @@ export enum HistoryMode {
     Append,
 }
 
+export interface StorageProvider<T = any> {
+    read(): T[]|Promise<T[]>;
+    write(data: T[]): void|Promise<void>;
+}
+
 export class HistoryStack<T = any> {
 
     static Mode = HistoryMode;
@@ -35,15 +40,15 @@ export class HistoryStack<T = any> {
     private ohsc?: () => void;
     private oho?: (data: T) => void;
 
-    useStorage = false;
-    storageKey = '';
     mode: HistoryMode;
+    storageProvider: StorageProvider<T>;
 
     constructor ({
         max = 0,
         useStorage = false,
         storageKey = '_def_history_stack',
         mode = HistoryMode.Fork,
+        storageProvider,
         onStepChange,
         onHistorySizeChange,
         onHistoryOut,
@@ -52,12 +57,32 @@ export class HistoryStack<T = any> {
         useStorage?: boolean,
         mode?: HistoryMode,
         storageKey?: string,
+        storageProvider?: StorageProvider<T>,
         onStepChange?: (step: number) => void
         onHistorySizeChange?: (size: number) => void
         onHistoryOut?: (data: T) => void;
     } = {}) {
         this.max = max;
         this.mode = mode;
+
+        if (useStorage !== false && (storageProvider || storageKey)) {
+            useStorage = true;
+        }
+        if (useStorage) {
+            this.storageProvider = storageProvider || {
+                read: () => {
+                    const data = localStorage.getItem(storageKey);
+                    if (!data) {
+                        return [];
+                    }
+                    return JSON.parse(data);
+                },
+                write: data => {
+                    localStorage.setItem(storageKey, JSON.stringify(data));
+                },
+            } as StorageProvider;
+        }
+
         if (onStepChange) {
             this.osc = () => onStepChange(this.step);
         }
@@ -69,17 +94,20 @@ export class HistoryStack<T = any> {
         this.ohsc?.();
 
         if (useStorage) {
-            this.useStorage = useStorage;
-            this.storageKey = storageKey;
-            const data = localStorage.getItem(storageKey);
-            if (data) {
-                this.useCache(JSON.parse(data));
+            const data = this.storageProvider.read();
+            if (data instanceof Promise) {
+                data.then(list => {
+                    this.useCache(list);
+                });
+            } else {
+                this.useCache(data);
             }
         }
 
     }
 
     useCache (list: T[]) {
+        if (list.length === 0) return;
         this.push(...list);
     }
 
@@ -241,9 +269,7 @@ export class HistoryStack<T = any> {
     }
 
     private _onListChange () {
-        if (this.useStorage) {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.list));
-        }
+        this.storageProvider?.write(this.list);
     }
 
     current () {

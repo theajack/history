@@ -13,9 +13,14 @@
 
 const End = Symbol('E');
 
+export enum HistoryMode {
+    Fork,
+    Append,
+}
+
 export class HistoryStack<T = any> {
 
-    step = 0;
+    step = 0; // 当前步数
     size = 0;
     max = 40; // 最多存储40步
     list: T[] = [];
@@ -29,18 +34,29 @@ export class HistoryStack<T = any> {
     private ohsc?: () => void;
     private oho?: (data: T) => void;
 
+    useStorage = false;
+    storageKey = '';
+    mode: HistoryMode;
+
     constructor ({
         max = 0,
+        useStorage = false,
+        storageKey = '_def_history_stack',
+        mode = HistoryMode.Fork,
         onStepChange,
         onHistorySizeChange,
         onHistoryOut,
     }: {
         max?: number,
+        useStorage?: boolean,
+        mode?: HistoryMode,
+        storageKey?: string,
         onStepChange?: (step: number) => void
         onHistorySizeChange?: (size: number) => void
         onHistoryOut?: (data: T) => void;
     } = {}) {
         this.max = max;
+        this.mode = mode;
         if (onStepChange) {
             this.osc = () => onStepChange(this.step);
         }
@@ -50,6 +66,20 @@ export class HistoryStack<T = any> {
         this.oho = onHistoryOut;
         this.osc?.();
         this.ohsc?.();
+
+        if (useStorage) {
+            this.useStorage = useStorage;
+            this.storageKey = storageKey;
+            const data = localStorage.getItem(storageKey);
+            if (data) {
+                this.useCache(JSON.parse(data));
+            }
+        }
+
+    }
+
+    useCache (list: T[]) {
+        this.push(...list);
     }
 
     setMax (max: number) {
@@ -161,6 +191,7 @@ export class HistoryStack<T = any> {
 
     clear () {
         this.list = [];
+        this._onListChange();
         this.setHistoryIndex(0);
         this.setStep(0);
         this.isActive = false;
@@ -169,10 +200,17 @@ export class HistoryStack<T = any> {
     replace (v: T, i = this.index) {
         if (typeof this.list[i] === 'undefined') return;
         this.list[i] = v;
+        this._onListChange();
     }
 
     get isLatest () {
         return this.index === this.list.length - 1;
+    }
+
+    private _onListChange () {
+        if (this.useStorage) {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.list));
+        }
     }
 
 }

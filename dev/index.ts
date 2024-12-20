@@ -4,7 +4,7 @@
  * @Description: Coding something
  */
 
-import {HistoryStack} from '../src/index';
+import {HistoryMode, HistoryStack} from '../src/index';
 
 const hh = new HistoryStack<number>({
     onStepChange (size) {
@@ -79,3 +79,27 @@ console.assert(hh.forward(2) === 7);
 // console.log('hh forw', hh.forward());
 // console.log('hh forw', hh.forward());
 // console.log('hh back', hh.back());
+
+
+const hh2 = new HistoryStack<number>({
+    mode: HistoryMode.Append,
+    onStepChange (size) {
+        console.log(`onStepChange: ${size}`);
+    },
+    onHistorySizeChange (size) {
+        console.log(`onHistorySizeChange: ${size}`);
+    }
+});
+
+hh2.push(1);
+hh2.push(2);
+hh2.push(3);
+
+console.assert(hh2.back() === 3);
+console.assert(hh2.back() === 2);
+console.assert(hh2.forward() === 3);
+console.assert(hh2.forward() === hh2.End);
+console.assert(hh2.back() === 2);
+console.assert(hh2.back() === 1);
+console.assert(hh2.back() === hh2.End);
+console.assert(hh2.forward() === 2);

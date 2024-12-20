@@ -54,6 +54,9 @@ More option
 import HistoryStack from 'history-stack';
 const history = new HistoryStack<string>({
     max: 1000,
+    useStorage: true,
+    storageKey: 'history-stack',
+    mode: HistoryStack.Mode.Append,
     onStepChange(step){
         console.log(`onStepChange: step=${step}`);
     },
@@ -64,4 +67,51 @@ const history = new HistoryStack<string>({
         console.log(`onHistoryOut: data=`, data);
     }
 });
+```
+
+typings
+
+```ts
+export declare class HistoryStack<T = any> {
+	static Mode: typeof HistoryMode;
+	step: number;
+	size: number;
+	max: number;
+	list: T[];
+	index: number;
+	End: T;
+	isActive: boolean;
+	private osc?;
+	private ohsc?;
+	private oho?;
+	useStorage: boolean;
+	storageKey: string;
+	mode: HistoryMode;
+	constructor({ max, useStorage, storageKey, mode, onStepChange, onHistorySizeChange, onHistoryOut, }?: {
+		max?: number;
+		useStorage?: boolean;
+		mode?: HistoryMode;
+		storageKey?: string;
+		onStepChange?: (step: number) => void;
+		onHistorySizeChange?: (size: number) => void;
+		onHistoryOut?: (data: T) => void;
+	});
+	useCache(list: T[]): void;
+	setMax(max: number): void;
+	private setStep;
+	private setHistoryIndex;
+	back(i?: number): T;
+	canBack(i?: number): boolean;
+	first(): typeof End | T;
+	last(): typeof End | T;
+	forward(i?: number): T;
+	isEnd(v: T): boolean;
+	canForward(i?: number): boolean;
+	push(...data: T[]): void;
+	clear(): void;
+	replace(v: T, i?: number): void;
+	get isLatest(): boolean;
+	private _onListChange;
+	current(): T;
+}
 ```

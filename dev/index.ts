@@ -90,6 +90,7 @@ const hh2 = new HistoryStack<number>({
         console.log(`onHistorySizeChange: ${size}`);
     }
 });
+window.hh2 = hh2;
 
 hh2.push(1);
 hh2.push(2);
@@ -103,3 +104,14 @@ console.assert(hh2.back() === 2);
 console.assert(hh2.back() === 1);
 console.assert(hh2.back() === hh2.End);
 console.assert(hh2.forward() === 2);
+hh2.push(4, 5);
+console.assert(hh2.back() === 5);
+console.assert(hh2.back() === 4);
+console.assert(hh2.back() === 3);
+console.assert(hh2.back() === 2);
+console.assert(hh2.back() === 1);
+console.assert(hh2.forward() === 2);
+console.assert(hh2.forward() === 3);
+console.assert(hh2.forward() === 4);
+console.assert(hh2.forward() === 5);
+console.assert(hh2.forward() === hh2.End);

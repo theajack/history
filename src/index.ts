@@ -20,6 +20,7 @@ export enum HistoryMode {
 
 export class HistoryStack<T = any> {
 
+    static Mode = HistoryMode;
     step = 0; // 当前步数
     size = 0;
     max = 40; // 最多存储40步
@@ -162,7 +163,9 @@ export class HistoryStack<T = any> {
             this.step ++;
             this.index ++;
             // 在历史记录中, 则移除旧记录，开辟新记录
-            this.list.splice(this.index);
+            if (this.mode === HistoryMode.Fork) {
+                this.list.splice(this.index);
+            }
         }
 
         const size = data.length;
@@ -173,16 +176,29 @@ export class HistoryStack<T = any> {
             pushCount = size - deleteCount;
         }
 
-        if (deleteCount) {
-            this.list.splice(0, deleteCount);
-        }
-        if (pushCount) {
-            this.setHistoryIndex(this.index + pushCount);
+        if (this.mode === HistoryMode.Fork) {
+            if (deleteCount) {
+                this.list.splice(0, deleteCount);
+            }
         }
 
         // console.log('receive change', this.list, this.index, data);
         this.list.push(...data);
-        this.setStep(this.step + pushCount);
+        this._onListChange();
+
+        if (pushCount) {
+            if (this.mode === HistoryMode.Append) {
+                this.setHistoryIndex(this.list.length);
+            } else {
+                this.setHistoryIndex(this.index + pushCount);
+            }
+        }
+
+        if (this.mode === HistoryMode.Append) {
+            this.setStep(this.list.length);
+        } else {
+            this.setStep(this.step + pushCount);
+        }
 
         if (this.isActive) {
             this.isActive = false;
@@ -213,6 +229,9 @@ export class HistoryStack<T = any> {
         }
     }
 
+    current () {
+        return this.list[this.index];
+    }
 }
 
 export default HistoryStack;

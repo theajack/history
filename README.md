@@ -18,6 +18,7 @@ or
 
 ```html
 <script src='https://cdn.jsdelivr.net/npm/history-stack'></script>
+<script>window.HistoryStack</script>
 ```
 
 ### Usage

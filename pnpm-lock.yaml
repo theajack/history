@@ -29,6 +29,9 @@ devDependencies:
   eslint:
     specifier: ^8.2.0
     version: registry.npmmirror.com/eslint@8.57.0
+  jsbox-cmd:
+    specifier: ^0.0.1
+    version: registry.npmmirror.com/jsbox-cmd@0.0.1
   terser:
     specifier: ^5.16.8
     version: registry.npmmirror.com/terser@5.31.6
@@ -3050,6 +3053,13 @@ packages:
     hasBin: true
     dependencies:
       argparse: registry.npmmirror.com/argparse@2.0.1
+    dev: true
+
+  registry.npmmirror.com/jsbox-cmd@0.0.1:
+    resolution: {integrity: sha512-OK8knKp8SsL5VgakmJwZ47xFQBUO23EWW4HlSHKWmxG+p2N+vVZMtJhx7NhOgK/jWz3xwUYLkfZNErWfDn8LzQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/jsbox-cmd/-/jsbox-cmd-0.0.1.tgz}
+    name: jsbox-cmd
+    version: 0.0.1
+    hasBin: true
     dev: true
 
   registry.npmmirror.com/jsesc@0.5.0:
